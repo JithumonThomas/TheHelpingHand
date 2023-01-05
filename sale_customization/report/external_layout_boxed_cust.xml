@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="custom_purchase_header_footer" inherit_id="web.external_layout_boxed">
+        <xpath expr="//div[1]" position="replace">
+            <div t-attf-class="o_company_#{company.id}_layout header" t-att-style="report_header_style">
+                <div class="row mb8">
+                    <div class="col-6">
+                        <img t-if="company.logo" t-att-src="image_data_uri(company.logo)" alt="Logo"/>
+                    </div>
+                    <div class="col-6  mb4">
+
+                        <div name="company_address" class="float-right mb4" style="font-size: 14px;">
+
+                            <span t-if="company.partner_id" t-field="company.partner_id.name"></span>
+                            <span t-if="company.street" t-field="company.street" style="display: block"></span>
+                            <span t-if="company.country_id" t-field="company.country_id.name"></span>
+                            <span t-if="company.zip" t-field="company.zip"></span>
+                            <span t-if="company.phone" style="display: block;">Tel :
+                                <span t-field="company.phone"></span>
+                            </span>
+                            <span t-if="company.mobile" style="display: block;">Mob :
+                                <span t-field="company.mobile"></span>
+                            </span>
+                            <span t-if="company.email" style="display: block;">Email :
+                                <span t-field="company.email"></span>
+                            </span>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </xpath>
+        <xpath expr="//div[contains(@t-attf-class, 'o_boxed_footer')]" position="replace">
+
+            <div t-attf-class="border-top footer  o_company_#{company.id}_layout">
+                <div class="text-center">
+
+                    <div style="font-size: 14px;">
+                        GST Reg No:<span t-if="company.vat" t-field="company.vat"></span>
+                        <span>|</span>
+                        UEN:<span t-if="company.l10n_sg_unique_entity_number" t-field="company.l10n_sg_unique_entity_number"></span>
+
+                    </div>
+                </div>
+            </div>
+        </xpath>
+    </template>
+</odoo>

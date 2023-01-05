@@ -1,0 +1,128 @@
+<odoo>
+    <data>
+        <template id="report_delivery_document_inherit"  inherit_id="stock.report_delivery_document">
+            <xpath expr="//div[@name='signature']" position="replace">
+
+                <p t-if="len(o.move_ids_without_package) > 7" style="page-break-after:always;"></p>
+                <table width="100%" class="mt-5">
+                    <td>Remarks :</td>
+                    <tr height="200px">
+                        <td>
+
+                        </td>
+                    </tr>
+                </table>
+                <table class="test mt-5" width="100%" style="border:1px white;">
+                    <tr style="border-right:1px white;" width="100%">
+                        <td style="border-right:1px white;" width="40%">Signature</td>
+                        <td style="border-right:1px white;" width="20%"></td>
+                        <td width="40%" style="border-right:1px white;background-color :#FFFFFF;!important ">Signature
+                        </td>
+                    </tr>
+                    <tr width="100%">
+                        <td style="border-right:1px white;height:70px" width="40%"></td>
+                        <td style="border-right:1px white;" width="20%"></td>
+                        <td width="40%" style="border-right:1px white;height:70px;background-color :#FFFFFF;!important">
+                            <img t-if="o.signature" t-att-src="image_data_uri(o.signature)"
+                                 style="max-height: 4cm; max-width: 8cm;"/>
+                        </td>
+                    </tr>
+                    <tr width="100%">
+                        <td width="40%" style="border-right:1px white;background-color :#FFFFFF;!important">
+                            <div style="border-top: 1px solid black; padding-right:100px;">
+                                <strong>THH By :</strong>
+                            </div>
+                        </td>
+                        <td style="border-right:1px white;" width="20%"></td>
+                        <td style="border-right:1px white;background-color :#FFFFFF;!important" width="40%">
+                            <div style="border-top: 1px solid black; ">
+                                <p t-if="o.signature" t-field="o.partner_id.name"/>
+                                <p t-field="o.partner_id.name" t-if="o.signature == False"/>
+                            </div>
+
+                        </td>
+                    </tr>
+
+                    <!--                   <td style="border-right:1px white;background-color :#FFFFFF;!important "><img t-if="doc.signature" t-att-src="image_data_uri(doc.signature)"-->
+                    <!--                         style="max-height: 4cm; max-width: 8cm;"/></td>-->
+                    <!--                </tr>-->
+                </table>
+
+            </xpath>
+            <xpath expr="//div[@name='div_sched_date']" position="replace">
+                <div t-if="o.state" class="col-auto" name="div_sched_date">
+                            <strong>Delivery Date:</strong>
+                            <t t-if="o.state == 'done'">
+                                <p t-field="o.date_done"/>
+                            </t>
+                            <t t-if="o.state != 'done'">
+                                <p t-field="o.scheduled_date"/>
+                           </t>
+                        </div>
+            </xpath>
+            <xpath expr="//div[@name='div_sched_date']" position="after">
+                <div t-if="o.sale_id.team_id.name" class="col-auto" name="div_origin_team">
+                    <strong>Business Unit:</strong>
+                    <p t-field="o.sale_id.team_id.name"/>
+                </div>
+            </xpath>
+             <xpath expr="//t[@t-set='address']" position="replace">
+
+               <table  border="0" class="addr" width="100%" style="border-right:1px white; border: none;">
+                   <tr style="border-right:1px #FFFFFF;!important ">
+
+                       <td class="float-left"  style="border-right:1px #FFFFFF;!important ">
+
+                            <div t-if="o.picking_type_id.code=='incoming' and partner">
+                                <span><strong>Vendor Address:</strong></span>
+                            </div>
+                            <div t-if="o.picking_type_id.code=='internal' and partner">
+                                <span><strong>Warehouse Address:</strong></span>
+                            </div>
+                            <div t-if="o.picking_type_id.code=='outgoing' and partner">
+                                <span><strong>Customer Address:</strong></span>
+                            </div>
+                            <div t-if="partner" name="partner_header">
+                                <div t-field="partner.commercial_partner_id"
+                                    t-options='{"widget": "contact", "fields": ["address", "name", "phone"], "no_marker": True, "phone_icons": True}'/>
+                                <p t-if="partner.sudo().commercial_partner_id.vat"><t t-esc="o.company_id.country_id.vat_label or 'Tax ID'"/>: <span t-field="partner.sudo().commercial_partner_id.vat"/></p>
+                            </div>
+
+                       </td>
+                       <td class="float-right" style="border-right:1px #FFFFFF;!important ">
+
+                        <div t-if="o.move_ids_without_package and o.move_ids_without_package[0].partner_id">
+                            <span><strong>Delivery Address:</strong></span>
+                            <div t-field="o.move_ids_without_package[0].partner_id"
+                                t-options='{"widget": "contact", "fields": ["address", "name","email", "phone"], "no_marker": True, "phone_icons": True}'/>
+                        </div>
+                        <div t-if="o.picking_type_id.code != 'internal' and (not o.move_ids_without_package or not o.move_ids_without_package[0].partner_id) and o.picking_type_id.warehouse_id.partner_id">
+                            <span><strong>Warehouse Address:</strong></span>
+                            <div t-field="o.picking_type_id.warehouse_id.partner_id"
+                                t-options='{"widget": "contact", "fields": ["address", "name", "phone"], "no_marker": True, "phone_icons": True}'/>
+                        </div>
+
+                       </td>
+                   </tr>
+               </table>
+            </xpath>
+<!--            <xpath expr="//t[@t-set='address']" position="replace">-->
+<!--                <div t-if="o.move_ids_without_package and o.move_ids_without_package[0].partner_id">-->
+
+
+<!--                    <div>-->
+<!--                         <span  class="float-center mb1">-->
+<!--                        <strong>Delivery Address:</strong>-->
+<!--                         </span>-->
+<!--                             <div t-field="o.move_ids_without_package[0].partner_id"-->
+
+<!--                         t-options='{"widget": "contact", "fields": ["address", "name","email", "phone"], "no_marker": True, "phone_icons": True}'-->
+<!--                         class="row justify-content-end mb16"/>-->
+
+<!--                    </div>-->
+
+<!--                </div>-->
+<!--            </xpath>-->
+        </template>
+    </data>
+</odoo>

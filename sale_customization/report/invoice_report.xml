@@ -1,0 +1,140 @@
+<odoo>
+    <data>
+        <template id="report_invoice_document_multzer_inherit" inherit_id="account.report_invoice_document">
+
+            <xpath expr="//div[@id='informations']" position="replace">
+                <div id="informations" class="row mt-4 mb-4">
+                    <div class="col-auto col-3 mw-100 mb-2" t-if="o.invoice_date" name="invoice_date">
+                        <t t-if="o.move_type == 'out_invoice'">
+                            <strong>Invoice Date:</strong>
+                        </t>
+                        <t t-elif="o.move_type == 'out_refund'">
+                            <strong>Credit Note Date:</strong>
+                        </t>
+                        <t t-elif="o.move_type == 'out_receipt'">
+                            <strong>Receipt Date:</strong>
+                        </t>
+                        <t t-else="">
+                            <strong>Date:</strong>
+                        </t>
+                        <p class="m-0" t-field="o.invoice_date"/>
+                    </div>
+                    <div class="col-auto col-3 mw-100 mb-2"
+                         t-if="o.invoice_date_due and o.move_type == 'out_invoice' and o.state == 'posted'"
+                         name="due_date">
+                        <strong>Due Date:</strong>
+                        <p class="m-0" t-field="o.invoice_date_due"/>
+                    </div>
+                    <div class="col-auto col-3 mw-100 mb-2" t-if="o.invoice_origin" name="origin">
+                        <strong>Source:</strong>
+                        <p class="m-0" t-field="o.invoice_origin"/>
+                    </div>
+                    <div class="col-auto col-3 mw-100 mb-2" t-if="o.team_id.name" name="team">
+                        <strong>Business Unit:</strong>
+                        <p class="m-0" t-field="o.team_id.name"/>
+                    </div>
+                    <div class="col-auto col-3 mw-100 mb-2" t-if="o.partner_id.ref" name="customer_code">
+                        <strong>Customer Code:</strong>
+                        <p class="m-0" t-field="o.partner_id.ref"/>
+                    </div>
+                    <div class="col-auto col-3 mw-100 mb-2" t-if="o.ref" name="reference">
+                        <strong>Reference:</strong>
+                        <p class="m-0" t-field="o.ref"/>
+                    </div>
+                </div>
+            </xpath>
+            <xpath expr="//div[@name='comment']" position="replace">
+
+                <p t-if="len(o.invoice_line_ids) > 2" style="page-break-after:always;"></p>
+                <table width="100%" class="mt-5">
+                    <td>Remarks :</td>
+                    <tr height="150px">
+                        <td>
+
+                        </td>
+                    </tr>
+                </table>
+                <table class="test" width="100%" style="border:1px white;">
+                    <tr style="border-right:1px white;" width="100%">
+                        <td style="border-right:1px white;" width="40%">Signature</td>
+                        <td style="border-right:1px white;" width="20%"></td>
+                        <td width="40%" style="border-right:1px white;background-color :#FFFFFF;!important ">Signature
+                        </td>
+                    </tr>
+                    <tr width="100%">
+                        <td style="border-right:1px white;height:70px" width="40%"></td>
+                        <td style="border-right:1px white;" width="20%"></td>
+                        <td width="40%"
+                            style="border-right:1px white;height:70px;background-color :#FFFFFF;!important"></td>
+                    </tr>
+                    <tr width="100%">
+                        <td width="40%" style="border-right:1px white;background-color :#FFFFFF;!important">
+                            <div style="border-top: 1px solid black; padding-right:100px;">
+                                <strong>THH By :</strong>
+                            </div>
+                        </td>
+                        <td style="border-right:1px white;" width="20%"></td>
+                        <td style="border-right:1px white;background-color :#FFFFFF;!important" width="40%">
+                            <div style="border-top: 1px solid black; ">
+                                <p t-field="o.partner_id.name"/>
+                            </div>
+
+                        </td>
+                    </tr>
+
+                </table>
+                <p t-if="len(o.narration) > 20" style="page-break-after:always;"></p>
+                <div t-if="not is_html_empty(o.narration)" name="comment">
+                    <span t-field="o.narration"/>
+                </div>
+            </xpath>
+            <xpath expr="//p[@name='payment_communication']" position="replace">
+
+            </xpath>
+
+            <xpath expr="//t[@t-set='address']" position="replace">
+
+                <table class="test mt-5" width="100%" style="border:1px white;">
+                    <tr style="border-right:1px white;" width="100%">
+                        <td style="border-right:1px white;" width="100%">
+                            <div t-field="o.partner_id"
+                                 t-options='{"widget": "contact", "fields": ["address",  "name","email","phone"], "no_marker": True}'
+                            />
+                            <div t-if="o.partner_id.vat" class="mt16">
+                                <t t-if="o.company_id.account_fiscal_country_id.vat_label"
+                                   t-esc="o.company_id.account_fiscal_country_id.vat_label" id="inv_tax_id_label"/>
+                                <t t-else="">Tax ID</t>:
+                                <span t-field="o.partner_id.vat"/>
+                            </div>
+                        </td>
+
+                    </tr>
+
+                </table>
+            </xpath>
+            <xpath expr="//div[@class='clearfix']//table[@class='table table-sm']//tr[1]"
+                   position="replace">
+                <tr>
+                    <td>
+                        <t t-set="payment"
+                           t-value="request.env['account.payment'].search([('ref', '=', o.payment_reference)])"/>
+
+                        <i class="oe_form_field text-right oe_payment_label">Paid on
+                            <t t-esc="payment_vals['date']" t-options='{"widget": "date"}'/>
+                            <t t-if="payment">
+                                (
+                                <t t-esc="payment.journal_id.name"/>
+                                )
+                            </t>
+                        </i>
+                    </td>
+                    <td class="text-right">
+                        <span t-esc="payment_vals['amount']"
+                              t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                    </td>
+                </tr>
+
+            </xpath>
+        </template>
+    </data>
+</odoo>
