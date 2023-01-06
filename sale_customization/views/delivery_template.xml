@@ -30,6 +30,7 @@
                  <field name="order_date"/>
                  <field name="team_id"/>
                 <field name="internal_remarks"/>
+                 <field name="remarks"/>
             </xpath>
 
         </field>

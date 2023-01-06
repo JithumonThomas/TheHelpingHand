@@ -6,9 +6,9 @@
                 <p t-if="len(o.move_ids_without_package) > 7" style="page-break-after:always;"></p>
                 <table width="100%" class="mt-5">
                     <td>Remarks :</td>
-                    <tr height="200px">
+                    <tr height="150px">
                         <td>
-
+                             <div class="mt-2" t-if="o.remarks" t-field="o.remarks"/>
                         </td>
                     </tr>
                 </table>

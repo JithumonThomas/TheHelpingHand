@@ -91,12 +91,15 @@ class SaleOrderInherit(models.Model):
 
         else:
             do_pick = self.picking_ids
-        if self.preferred_delivery_date:
-            do_pick.write({'internal_remarks': self.internal_remarks, 'scheduled_date': self.preferred_delivery_date,
-                           'date_deadline': self.preferred_delivery_date})
-        else:
-            do_pick.write({'internal_remarks': self.internal_remarks})
-        self.write({'scheduled_delivery_date': do_pick.scheduled_date})
+        if do_pick:
+            if self.remarks:
+                do_pick.write({'remarks': self.remarks})
+            if self.preferred_delivery_date:
+                do_pick.write({'internal_remarks': self.internal_remarks, 'scheduled_date': self.preferred_delivery_date,
+                               'date_deadline': self.preferred_delivery_date})
+            else:
+                do_pick.write({'internal_remarks': self.internal_remarks})
+            self.write({'scheduled_delivery_date': do_pick.scheduled_date})
         return res
 
     def _prepare_invoice(self):

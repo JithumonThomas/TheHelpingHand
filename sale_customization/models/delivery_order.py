@@ -19,4 +19,5 @@ class DeliveryOrderInherit(models.Model):
     internal_remarks = fields.Text(string='Internal Remarks')
     order_date = fields.Datetime(related='sale_id.date_order',string='Order Date')
     team_id = fields.Many2one('crm.team',related='sale_id.team_id', string='Sales Team')
+    remarks = fields.Text(string='Remarks', readonly=True)
 
