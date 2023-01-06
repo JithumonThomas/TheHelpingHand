@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
+
     <record id="inherit_sale_order_form_quote" model="ir.ui.view">
         <field name="name">inherit.sale.order.form.quote</field>
         <field name="model">sale.order</field>
@@ -18,6 +19,8 @@
 
                 <field name="scheduled_delivery_date" invisible="1"/>
                 <field name="delivery_status"/>
+                <field name="remarks" />
+
             </xpath>
         </field>
     </record>
@@ -28,12 +31,12 @@
 
         <field name="priority">10</field>
         <field name="arch" type="xml">
-<!--            <xpath expr="//field[@name='order_line']/tree[1]/field[@name='product_id']" position="attributes">-->
-<!--                <attribute name="options">{'no_create': True}</attribute>-->
-<!--            </xpath>-->
-<!--            <xpath expr="//field[@name='order_line']/tree[1]/field[@name='product_template_id']" position="attributes">-->
-<!--                <attribute name="options">{'no_create': True}</attribute>-->
-<!--            </xpath>-->
+            <!--            <xpath expr="//field[@name='order_line']/tree[1]/field[@name='product_id']" position="attributes">-->
+            <!--                <attribute name="options">{'no_create': True}</attribute>-->
+            <!--            </xpath>-->
+            <!--            <xpath expr="//field[@name='order_line']/tree[1]/field[@name='product_template_id']" position="attributes">-->
+            <!--                <attribute name="options">{'no_create': True}</attribute>-->
+            <!--            </xpath>-->
             <xpath expr="//field[@name='team_id']" position="replace">
 
                 <field name="team_id"
@@ -53,6 +56,8 @@
                        force_save="1"/>
             </xpath>
             <xpath expr="//field[@name='payment_term_id']" position="after">
+                <field name="invoice_number"/>
+                <field name="invoice_date"/>
                 <field name="payment_status"/>
                 <field name="amount_paid"/>
                 <field name="payment_memo"/>
@@ -78,12 +83,12 @@
         <field name="inherit_id" ref="sale.view_order_tree"/>
         <field name="priority">1</field>
         <field name="arch" type="xml">
-              <xpath expr="//field[@name='activity_ids']" position="attributes">
+            <xpath expr="//field[@name='activity_ids']" position="attributes">
 
-<!--                <attribute name="invisible">1</attribute>-->
-                  <attribute name="optional">hide</attribute>
+                <!--                <attribute name="invisible">1</attribute>-->
+                <attribute name="optional">hide</attribute>
 
-              </xpath>
+            </xpath>
             <xpath expr="//field[@name='tag_ids']" position="after">
                 <field name="internal_remarks" optional="hide"/>
                 <field name="preferred_delivery_date" optional="hide"/>
@@ -95,6 +100,8 @@
                 <field name="journal_id" optional="hide"/>
                 <field name="myob_invoice_created" optional="hide"/>
                 <field name="myob_sales_order_created" optional="hide"/>
+                <field name="invoice_number" optional="hide"/>
+                <field name="invoice_date" optional="hide"/>
             </xpath>
 
         </field>
@@ -108,10 +115,10 @@
         <field name="arch" type="xml">
             <xpath expr="//field[@name='activity_ids']" position="attributes">
 
-<!--                <attribute name="invisible">1</attribute>-->
+                <!--                <attribute name="invisible">1</attribute>-->
                 <attribute name="optional">hide</attribute>
 
-              </xpath>
+            </xpath>
             <xpath expr="//field[@name='invoice_status']" position="after">
                 <field name="internal_remarks" optional="hide"/>
                 <field name="preferred_delivery_date" optional="hide"/>
@@ -123,6 +130,8 @@
                 <field name="journal_id" optional="hide"/>
                 <field name="myob_invoice_created" optional="hide"/>
                 <field name="myob_sales_order_created" optional="hide"/>
+                <field name="invoice_number" optional="hide"/>
+                <field name="invoice_date" optional="hide"/>
             </xpath>
 
         </field>
@@ -138,6 +147,24 @@
                 <field name="team_id"/>
             </xpath>
 
+        </field>
+    </record>
+    <record id="sale_order_search_view_inherit" model="ir.ui.view">
+        <field name="name">sale.order.search.view.inherit</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_sales_order_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//search/filter[@name='activities_upcoming_all']" position="after">
+                <filter string="Today" name="today"
+                        domain="[('create_date', '&gt;', (context_today() - datetime.timedelta(days=1)).strftime('%%Y-%%m-%%d'))]"/>
+                <separator string="Requirements"/>
+
+                <filter string="This Month" name="this_month"
+                        domain="[('preferred_delivery_date','&lt;',(context_today()+relativedelta(months=1)).strftime('%%Y-%%m-01')), ('preferred_delivery_date','&gt;=',time.strftime('%%Y-%%m-01'))]"/>
+                <filter string="After This Month" name="after_this_month"
+                        domain="[('preferred_delivery_date','&gt;=',(context_today()+relativedelta(months=1)).strftime('%Y/%m/01')),('preferred_delivery_date','&lt;',(context_today()+relativedelta(months=2)).strftime('%Y/%m/01'))]"/>
+
+            </xpath>
         </field>
     </record>
 </odoo>

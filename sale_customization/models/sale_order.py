@@ -20,6 +20,14 @@ class SaleOrderInherit(models.Model):
             return create_id
 
     def write(self, vals):
+        if self.invoice_ids:
+            print("====================")
+            if 'remarks' in  vals:
+                for invoice in self.invoice_ids:
+                    print(invoice)
+                    invoice.write({'remarks':vals['remarks']})
+
+
         if self.picking_ids:
 
             if len(self.picking_ids) > 1:
@@ -92,6 +100,7 @@ class SaleOrderInherit(models.Model):
         return res
 
     def _prepare_invoice(self):
+        print("=============")
 
         res = super(SaleOrderInherit, self)._prepare_invoice()
 
@@ -99,6 +108,11 @@ class SaleOrderInherit(models.Model):
             'internal_remarks': self.internal_remarks
 
         }
+        if self.remarks:
+            vals.update({'remarks':self.remarks})
+        # print(vals)
+        # print("=====================================================")
+        # exit()
         res.update(vals)
         return res
 
@@ -142,8 +156,12 @@ class SaleOrderInherit(models.Model):
 
                 else:
                     do_invo = rec.invoice_ids
+                rec.invoice_date = do_invo.invoice_date
+                rec.invoice_number = do_invo.name
                 rec.payment_status = do_invo.payment_state
-                rec.write({'payment_status': do_invo.payment_state})
+                rec.write({'payment_status': do_invo.payment_state, 'invoice_date': do_invo.invoice_date,
+                           'invoice_number': do_invo.name})
+
 
     @api.onchange('invoice_ids')
     def _invoice_amount_paid(self):
@@ -175,8 +193,9 @@ class SaleOrderInherit(models.Model):
                     do_invo = self.env['account.move'].sudo().search([('id', '=', sorted_list[-1])])
 
                     pay_ref = do_invo.payment_reference
+
                     if pay_ref:
-                        payment_ref = self.env['account.payment'].sudo().search([('ref', '=', pay_ref)])
+                        payment_ref = self.env['account.payment'].sudo().search([('payment_reference', '=', pay_ref)])
 
                         if len(payment_ref) > 1:
                             rec.payment_memo = payment_ref[-1].ref
@@ -247,3 +266,6 @@ class SaleOrderInherit(models.Model):
     myob_sales_order_created = fields.Boolean(string='MYOB Sales Order Created')
     myob_sales_order_number = fields.Char(string='MYOB Order Number')
     amount_paid = fields.Char(string='Amount Paid',compute=_invoice_amount_paid)
+    invoice_number = fields.Char(string='Invoice Number' ,readonly=True)
+    invoice_date = fields.Char(string='Invoice Date' ,readonly=True)
+    remarks = fields.Text(string='Remarks')

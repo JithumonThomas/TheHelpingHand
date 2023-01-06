@@ -48,10 +48,11 @@
             </t>
 
             <table width="100%" class="mt-2">
-                <td>Remarks :</td>
+                <td>Remarks :
+                </td>
                 <tr height="150px">
                     <td>
-
+                        <div class="mt-2" t-if="doc.remarks" t-field="doc.remarks"/>
                     </td>
                 </tr>
             </table>

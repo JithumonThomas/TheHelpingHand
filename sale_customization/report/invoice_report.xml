@@ -50,7 +50,7 @@
                     <td>Remarks :</td>
                     <tr height="150px">
                         <td>
-
+                            <div class="mt-2" t-if="o.remarks" t-field="o.remarks"/>
                         </td>
                     </tr>
                 </table>
