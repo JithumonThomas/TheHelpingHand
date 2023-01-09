@@ -15,7 +15,7 @@
 
             </field>
             <xpath expr="//field[@name='sale_order_template_id']" position="after">
-                <field name="preferred_delivery_date"/>
+                <field name="preferred_delivery_date" attrs="{'required': [('sale_order_template_id', '=', 1)]}"/>
 
                 <field name="scheduled_delivery_date" invisible="1"/>
                 <field name="delivery_status"/>
@@ -59,7 +59,7 @@
                 <field name="invoice_number"/>
                 <field name="invoice_date"/>
                 <field name="payment_status"/>
-                <field name="amount_paid"/>
+                <field name="amount_paid"  widget='monetary' options="{'currency_field': 'currency_id'}" />
                 <field name="payment_memo"/>
                 <field name="journal_id"/>
                 <field name="internal_remarks"/>
@@ -96,6 +96,7 @@
                 <field name="scheduled_delivery_date" optional="hide"/>
                 <field name="delivery_status" optional="hide"/>
                 <field name="payment_status" optional="hide"/>
+                <field name="amount_paid"  widget='monetary' options="{'currency_field': 'currency_id'}" optional="hide"/>
                 <field name="payment_memo" optional="hide"/>
                 <field name="journal_id" optional="hide"/>
                 <field name="myob_invoice_created" optional="hide"/>
@@ -126,6 +127,7 @@
                 <field name="scheduled_delivery_date" optional="hide"/>
                 <field name="delivery_status" optional="hide"/>
                 <field name="payment_status" optional="hide"/>
+                <field name="amount_paid" widget='monetary' options="{'currency_field': 'currency_id'}" optional="hide"/>
                 <field name="payment_memo" optional="hide"/>
                 <field name="journal_id" optional="hide"/>
                 <field name="myob_invoice_created" optional="hide"/>
@@ -154,6 +156,9 @@
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_sales_order_filter"/>
         <field name="arch" type="xml">
+            <xpath expr="//search/field[@name='team_id']" position="after">
+                <field name="invoice_ids" string="Invoice No"/>
+            </xpath>
             <xpath expr="//search/filter[@name='activities_upcoming_all']" position="after">
                 <filter string="Today" name="today"
                         domain="[('create_date', '&gt;', (context_today() - datetime.timedelta(days=1)).strftime('%%Y-%%m-%%d'))]"/>
@@ -163,6 +168,11 @@
                         domain="[('preferred_delivery_date','&lt;',(context_today()+relativedelta(months=1)).strftime('%%Y-%%m-01')), ('preferred_delivery_date','&gt;=',time.strftime('%%Y-%%m-01'))]"/>
                 <filter string="After This Month" name="after_this_month"
                         domain="[('preferred_delivery_date','&gt;=',(context_today()+relativedelta(months=1)).strftime('%Y/%m/01')),('preferred_delivery_date','&lt;',(context_today()+relativedelta(months=2)).strftime('%Y/%m/01'))]"/>
+<!--                <filter name="team_id" string="Sales Team" domain="[('team_id','=',False)]"/>-->
+               <filter name="sale_team" string="Sale Team" icon="terp-partner" context="{'group_by':'team_id'}"/>
+                <filter name="invoice_date" string="Invoice Date"  context="{'group_by':'invoice_date'}"/>
+
+
 
             </xpath>
         </field>

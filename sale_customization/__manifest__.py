@@ -11,7 +11,8 @@
         'base',
         'sale',
         'sale_management',
-        'account'
+        'account',
+        'wk_pos_partial_payment'
 
     ],
     # 'assets': {
@@ -20,8 +21,8 @@
     #     ],
     # },
         'data': [
-            # 'security/product_security.xml',
-            # 'security/ir.model.access.csv',
+            'security/product_security.xml',
+            'security/ir.model.access.csv',
             'data/automation.xml',
             'report/custom_sale_report.xml',
             'report/external_layout_boxed_cust.xml',

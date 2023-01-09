@@ -20,20 +20,22 @@ class SaleOrderInherit(models.Model):
             return create_id
 
     def write(self, vals):
+        if self.picking_ids:
+            if 'remarks' in vals:
+                for picking in self.picking_ids:
+                    picking.write({'remarks': vals['remarks']})
         if self.invoice_ids:
-            print("====================")
-            if 'remarks' in  vals:
-                for invoice in self.invoice_ids:
-                    print(invoice)
-                    invoice.write({'remarks':vals['remarks']})
 
+            if 'remarks' in vals:
+                for invoice in self.invoice_ids:
+                    invoice.write({'remarks': vals['remarks']})
 
         if self.picking_ids:
 
             if len(self.picking_ids) > 1:
                 ids = []
                 for picking_ids in self.picking_ids:
-                        ids.append(picking_ids.id)
+                    ids.append(picking_ids.id)
                 sorted_list = sorted(ids)
                 do_pick = self.env['stock.picking'].sudo().search([('id', '=', sorted_list[-1])])
                 if 'preferred_delivery_date' in vals:
@@ -95,16 +97,15 @@ class SaleOrderInherit(models.Model):
             if self.remarks:
                 do_pick.write({'remarks': self.remarks})
             if self.preferred_delivery_date:
-                do_pick.write({'internal_remarks': self.internal_remarks, 'scheduled_date': self.preferred_delivery_date,
-                               'date_deadline': self.preferred_delivery_date})
+                do_pick.write(
+                    {'internal_remarks': self.internal_remarks, 'scheduled_date': self.preferred_delivery_date,
+                     'date_deadline': self.preferred_delivery_date})
             else:
                 do_pick.write({'internal_remarks': self.internal_remarks})
             self.write({'scheduled_delivery_date': do_pick.scheduled_date})
         return res
 
     def _prepare_invoice(self):
-        print("=============")
-
         res = super(SaleOrderInherit, self)._prepare_invoice()
 
         vals = {
@@ -112,10 +113,7 @@ class SaleOrderInherit(models.Model):
 
         }
         if self.remarks:
-            vals.update({'remarks':self.remarks})
-        # print(vals)
-        # print("=====================================================")
-        # exit()
+            vals.update({'remarks': self.remarks})
         res.update(vals)
         return res
 
@@ -165,7 +163,6 @@ class SaleOrderInherit(models.Model):
                 rec.write({'payment_status': do_invo.payment_state, 'invoice_date': do_invo.invoice_date,
                            'invoice_number': do_invo.name})
 
-
     @api.onchange('invoice_ids')
     def _invoice_amount_paid(self):
         for rec in self:
@@ -176,11 +173,14 @@ class SaleOrderInherit(models.Model):
 
                     if in_id.payment_state == 'paid':
                         total = total + in_id.amount_total
+                        # curr = 'S$'+str(total)
                         rec.amount_paid = total
                     else:
+                        # curr = 'S$'+str(total)
                         rec.amount_paid = total
             else:
-                rec.amount_paid = 0.00
+                rec.amount_paid = '0.00'
+
     def _payment_memo(self):
 
         for rec in self:
@@ -198,7 +198,10 @@ class SaleOrderInherit(models.Model):
                     pay_ref = do_invo.payment_reference
 
                     if pay_ref:
-                        payment_ref = self.env['account.payment'].sudo().search([('payment_reference', '=', pay_ref)])
+                        payment_ref = self.env['account.payment'].sudo().search([('ref', '=ilike', pay_ref)])
+                        if not payment_ref:
+                            payment_ref = self.env['account.payment'].sudo().search(
+                                [('ref', '=ilike', '%' + pay_ref + '%')])
 
                         if len(payment_ref) > 1:
                             rec.payment_memo = payment_ref[-1].ref
@@ -210,8 +213,10 @@ class SaleOrderInherit(models.Model):
                     pay_ref = rec.invoice_ids.payment_reference
                     if pay_ref:
 
-                        payment_ref = self.env['account.payment'].sudo().search([('ref', '=', pay_ref)])
-
+                        payment_ref = self.env['account.payment'].sudo().search([('ref', '=ilike', pay_ref)])
+                        if not payment_ref:
+                            payment_ref = self.env['account.payment'].sudo().search(
+                                [('ref', '=ilike', '%' + pay_ref + '%')])
                         if len(payment_ref) > 1:
                             rec.payment_memo = payment_ref[-1].ref
                             rec.journal_id = payment_ref[-1].journal_id
@@ -229,12 +234,9 @@ class SaleOrderInherit(models.Model):
                         {'scheduled_date': rec.preferred_delivery_date, 'date_deadline': rec.preferred_delivery_date})
                 rec.scheduled_delivery_date = delivery[-1].scheduled_date
 
-
-
     @api.onchange('sale_order_template_id')
     def get_team_from_temp(self):
         if self.sale_order_template_team_id:
-
             self.team_id = self.sale_order_template_team_id
 
     internal_remarks = fields.Text(string='Internal Remarks')
@@ -245,7 +247,7 @@ class SaleOrderInherit(models.Model):
         ('done', 'Done'),
         ('cancel', 'Cancelled'),
         ('waiting', 'Waiting Another Operation')
-    ], string='Delivery Status',readonly=True, compute=_delivery_status)
+    ], string='Delivery Status', readonly=True, compute=_delivery_status)
     payment_status = fields.Selection(selection=[
         ('not_paid', 'Not Paid'),
         ('in_payment', 'In Payment'),
@@ -268,7 +270,7 @@ class SaleOrderInherit(models.Model):
     myob_invoice_number = fields.Char(string='MYOB Invoice Number')
     myob_sales_order_created = fields.Boolean(string='MYOB Sales Order Created')
     myob_sales_order_number = fields.Char(string='MYOB Order Number')
-    amount_paid = fields.Char(string='Amount Paid',compute=_invoice_amount_paid)
-    invoice_number = fields.Char(string='Invoice Number' ,readonly=True)
-    invoice_date = fields.Char(string='Invoice Date' ,readonly=True)
+    amount_paid = fields.Float(string='Amount Paid', compute=_invoice_amount_paid)
+    invoice_number = fields.Char(string='Invoice Number', readonly=True)
+    invoice_date = fields.Datetime(string='Invoice Date', readonly=True)
     remarks = fields.Text(string='Remarks')

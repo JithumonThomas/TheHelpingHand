@@ -43,9 +43,13 @@
         <xpath expr="//div[@name='signature']" position="replace">
 
             <!--            <div t-if="doc.signature" class="mt32 ml64 mr4" name="signature">-->
-            <t t-if="doc.partner_id.email  and doc.partner_id.name and doc.partner_id.phone">
+
+            <t t-if="doc.partner_id.email  and doc.partner_id.name and doc.partner_id.phone and doc.partner_id.mobile">
                 <p t-if="len(doc.order_line) > 4" style="page-break-after:always;"></p>
             </t>
+             <t t-if="doc.partner_id.email  and doc.partner_id.phone">
+                 <p t-if="len(doc.order_line) >= 4" style="page-break-after:always;"></p>
+             </t>
 
             <table width="100%" class="mt-2">
                 <td>Remarks :
