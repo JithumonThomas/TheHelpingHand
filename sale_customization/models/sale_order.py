@@ -171,15 +171,17 @@ class SaleOrderInherit(models.Model):
                 total = 0.00
                 for in_id in rec.invoice_ids:
 
-                    if in_id.payment_state == 'paid':
+                    if in_id.payment_state != 'not_paid':
                         total = total + in_id.amount_total
                         # curr = 'S$'+str(total)
                         rec.amount_paid = total
                     else:
                         # curr = 'S$'+str(total)
                         rec.amount_paid = total
+                    rec.write({'inovice_total_amount': total})
             else:
                 rec.amount_paid = '0.00'
+                rec.write({'inovice_total_amount': '0.00'})
 
     def _payment_memo(self):
 
@@ -204,9 +206,11 @@ class SaleOrderInherit(models.Model):
                                 [('ref', '=ilike', '%' + pay_ref + '%')])
 
                         if len(payment_ref) > 1:
+                            rec.write({'ref': payment_ref[-1].ref, 'journal_id': payment_ref[-1].journal_id})
                             rec.payment_memo = payment_ref[-1].ref
                             rec.journal_id = payment_ref[-1].journal_id
                         else:
+                            rec.write({'ref': payment_ref.ref, 'journal_id': payment_ref.journal_id})
                             rec.payment_memo = payment_ref.ref
                             rec.journal_id = payment_ref.journal_id
                 else:
@@ -218,9 +222,11 @@ class SaleOrderInherit(models.Model):
                             payment_ref = self.env['account.payment'].sudo().search(
                                 [('ref', '=ilike', '%' + pay_ref + '%')])
                         if len(payment_ref) > 1:
+                            rec.write({'ref': payment_ref[-1].ref, 'journal_id': payment_ref[-1].journal_id})
                             rec.payment_memo = payment_ref[-1].ref
                             rec.journal_id = payment_ref[-1].journal_id
                         else:
+                            rec.write({'ref': payment_ref.ref, 'journal_id': payment_ref.journal_id})
                             rec.payment_memo = payment_ref.ref
                             rec.journal_id = payment_ref.journal_id
 
@@ -274,3 +280,5 @@ class SaleOrderInherit(models.Model):
     invoice_number = fields.Char(string='Invoice Number', readonly=True)
     invoice_date = fields.Datetime(string='Invoice Date', readonly=True)
     remarks = fields.Text(string='Remarks')
+    ref = fields.Char('Payment Memo',readonly=True)
+    inovice_total_amount = fields.Char(string='Paid Amount',readonly=True)

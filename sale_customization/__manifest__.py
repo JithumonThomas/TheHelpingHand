@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Sale Customization',
-    'version': '1.10',
+    'version': '1.12',
     'category': 'sale',
     'description': u"""
 
@@ -17,7 +17,7 @@
     ],
     # 'assets': {
     #     'web.assets_backend': [
-    #         'sale_customization/static/src/js/custom_filter.js'
+    #         'sale_customization/static/src/js/chttps://crmtest.thehelpinghand.org.sg/web/loginustom_filter.js'
     #     ],
     # },
         'data': [

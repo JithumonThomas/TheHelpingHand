@@ -7,11 +7,9 @@
                     <thead>
                         <tr>
                             <th name="th_sm_product">
-                                <strong>Product</strong>
+                                <strong>Product Description</strong>
                             </th>
-                             <th name="th_sm_ordered">
-                                <strong>Description</strong>
-                            </th>
+
                             <th name="th_sm_ordered">
                                 <strong>Ordered</strong>
                             </th>
@@ -30,12 +28,7 @@
                                 </p>
                             </td>
 
-                             <td>
-                                <span t-field="move.product_id"/>
-                                <p t-if="move.description_picking != move.product_id.name and move.description_picking != move.product_id.display_name">
-                                    <span t-field="move.description_picking"/>
-                                </p>
-                            </td>
+
 
                             <td>
                                 <span t-field="move.product_uom_qty"/>
@@ -109,6 +102,10 @@
                 </div>
             </xpath>
             <xpath expr="//div[@name='div_sched_date']" position="after">
+                <div t-if="o.sale_id.user_id.name" class="col-auto" name="div_origin_salesperson">
+                    <strong>Salesperson:</strong>
+                    <p t-field="o.sale_id.user_id.name"/>
+                </div>
                 <div t-if="o.sale_id.team_id.name" class="col-auto" name="div_origin_team">
                     <strong>Business Unit:</strong>
                     <p t-field="o.sale_id.team_id.name"/>
