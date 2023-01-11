@@ -20,4 +20,7 @@ class DeliveryOrderInherit(models.Model):
     order_date = fields.Datetime(related='sale_id.date_order',string='Order Date')
     team_id = fields.Many2one('crm.team',related='sale_id.team_id', string='Sales Team')
     remarks = fields.Text(string='Remarks', readonly=True)
+    partner_phone = fields.Char(related='partner_id.phone')
+    partner_mobile = fields.Char(related='partner_id.mobile')
+
 

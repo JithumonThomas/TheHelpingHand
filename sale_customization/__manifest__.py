@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Sale Customization',
-    'version': '1.12',
+    'version': '1.13',
     'category': 'sale',
     'description': u"""
 
@@ -17,12 +17,12 @@
     ],
     # 'assets': {
     #     'web.assets_backend': [
-    #         'sale_customization/static/src/js/chttps://crmtest.thehelpinghand.org.sg/web/loginustom_filter.js'
+    #         'sale_customization/static/src/js/custom_filter.js'
     #     ],
     # },
         'data': [
-            'security/product_security.xml',
-            'security/ir.model.access.csv',
+            #'security/product_security.xml',
+            #'security/ir.model.access.csv',
             'data/automation.xml',
             'report/custom_sale_report.xml',
             'report/external_layout_boxed_cust.xml',

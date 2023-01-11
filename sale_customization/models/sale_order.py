@@ -168,17 +168,35 @@ class SaleOrderInherit(models.Model):
         for rec in self:
 
             if rec.invoice_ids:
+                if len(rec.invoice_ids) > 1:
+                    ids = []
+                    for invoice_ids in rec.invoice_ids:
+                        ids.append(invoice_ids.id)
+                    sorted_list = sorted(ids)
+                    do_invo = self.env['account.move'].sudo().search([('id', '=', sorted_list[-1])])
+
+                else:
+                    do_invo = rec.invoice_ids
                 total = 0.00
-                for in_id in rec.invoice_ids:
+                for in_id in do_invo:
 
                     if in_id.payment_state != 'not_paid':
                         total = total + in_id.amount_total
                         # curr = 'S$'+str(total)
                         rec.amount_paid = total
+                        rec.write({'inovice_total_amount': total})
+                        rec.write({'amount_paid': total})
+                        if in_id.payment_state == 'partial':
+                            partial = total - in_id.amount_residual
+                            rec.amount_paid = partial
+                            rec.write({'inovice_total_amount': partial})
+                            rec.write({'amount_paid': partial})
                     else:
-                        # curr = 'S$'+str(total)
+
                         rec.amount_paid = total
-                    rec.write({'inovice_total_amount': total})
+                        rec.write({'inovice_total_amount': total})
+                        rec.write({'amount_paid': total})
+                    print(rec.amount_paid,rec.inovice_total_amount)
             else:
                 rec.amount_paid = '0.00'
                 rec.write({'inovice_total_amount': '0.00'})
@@ -244,6 +262,14 @@ class SaleOrderInherit(models.Model):
     def get_team_from_temp(self):
         if self.sale_order_template_team_id:
             self.team_id = self.sale_order_template_team_id
+
+    @api.onchange('user_id')
+    def onchange_user_id(self):
+        if self.user_id:
+            default_team = self.env.context.get('default_team_id', False) or self.team_id.id
+            # self.team_id = self.env['crm.team'].with_context(
+            #     default_team_id=default_team
+            # )._get_default_team_id(user_id=self.user_id.id, domain=None)
 
     internal_remarks = fields.Text(string='Internal Remarks')
     delivery_status = fields.Selection([
