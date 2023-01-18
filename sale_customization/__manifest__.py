@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Sale Customization',
-    'version': '1.13',
+    'version': '1.15',
     'category': 'sale',
     'description': u"""
 

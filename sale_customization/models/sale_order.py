@@ -150,10 +150,22 @@ class SaleOrderInherit(models.Model):
             if rec.invoice_ids:
                 if len(rec.invoice_ids) > 1:
                     ids = []
+                    ca_id = []
                     for invoice_ids in rec.invoice_ids:
-                        ids.append(invoice_ids.id)
-                    sorted_list = sorted(ids)
-                    do_invo = self.env['account.move'].sudo().search([('id', '=', sorted_list[-1])])
+                        if invoice_ids.state != 'cancel':
+                            ids.append(invoice_ids.id)
+                    if ids:
+                        sorted_list = sorted(ids)
+                    else:
+                        for invoice_ids in rec.invoice_ids:
+                            if invoice_ids.state == 'cancel':
+                                ca_id.append(invoice_ids.id)
+                            sorted_list = sorted(ca_id)
+                    if len(sorted_list) > 1:
+                        do_invo = self.env['account.move'].sudo().search([('id', '=', sorted_list[-1])])
+                    else:
+
+                        do_invo = self.env['account.move'].sudo().search([('id', '=', sorted_list[0])])
 
                 else:
                     do_invo = rec.invoice_ids
@@ -170,10 +182,23 @@ class SaleOrderInherit(models.Model):
             if rec.invoice_ids:
                 if len(rec.invoice_ids) > 1:
                     ids = []
+                    ca_id = []
                     for invoice_ids in rec.invoice_ids:
-                        ids.append(invoice_ids.id)
-                    sorted_list = sorted(ids)
-                    do_invo = self.env['account.move'].sudo().search([('id', '=', sorted_list[-1])])
+                        if invoice_ids.state != 'cancel':
+                            ids.append(invoice_ids.id)
+
+                    if ids:
+                        sorted_list = sorted(ids)
+                    else:
+                        for invoice_ids in rec.invoice_ids:
+                            if invoice_ids.state == 'cancel':
+                                ca_id.append(invoice_ids.id)
+                            sorted_list = sorted(ca_id)
+                    if len(sorted_list) > 1:
+                        do_invo = self.env['account.move'].sudo().search([('id', '=', sorted_list[-1])])
+                    else:
+
+                        do_invo = self.env['account.move'].sudo().search([('id', '=', sorted_list[0])])
 
                 else:
                     do_invo = rec.invoice_ids
@@ -196,7 +221,7 @@ class SaleOrderInherit(models.Model):
                         rec.amount_paid = total
                         rec.write({'inovice_total_amount': total})
                         rec.write({'amount_paid': total})
-                    print(rec.amount_paid,rec.inovice_total_amount)
+
             else:
                 rec.amount_paid = '0.00'
                 rec.write({'inovice_total_amount': '0.00'})
@@ -209,11 +234,24 @@ class SaleOrderInherit(models.Model):
 
                 if len(rec.invoice_ids) > 1:
                     ids = []
+                    ca_id = []
                     for invoice_ids in rec.invoice_ids:
-                        ids.append(invoice_ids.id)
-                    sorted_list = sorted(ids)
+                        if invoice_ids.state != 'cancel':
+                            ids.append(invoice_ids.id)
 
-                    do_invo = self.env['account.move'].sudo().search([('id', '=', sorted_list[-1])])
+                    if ids:
+                        sorted_list = sorted(ids)
+                    else:
+                        for invoice_ids in rec.invoice_ids:
+                            if invoice_ids.state == 'cancel':
+                                ca_id.append(invoice_ids.id)
+                            sorted_list = sorted(ca_id)
+
+                    if len(sorted_list) > 1:
+                        do_invo = self.env['account.move'].sudo().search([('id', '=', sorted_list[-1])])
+                    else:
+
+                        do_invo = self.env['account.move'].sudo().search([('id', '=', sorted_list[0])])
 
                     pay_ref = do_invo.payment_reference
 
@@ -306,5 +344,5 @@ class SaleOrderInherit(models.Model):
     invoice_number = fields.Char(string='Invoice Number', readonly=True)
     invoice_date = fields.Datetime(string='Invoice Date', readonly=True)
     remarks = fields.Text(string='Remarks')
-    ref = fields.Char('Payment Memo',readonly=True)
-    inovice_total_amount = fields.Char(string='Paid Amount',readonly=True)
+    ref = fields.Char('Payment Memo', readonly=True)
+    inovice_total_amount = fields.Char(string='Paid Amount', readonly=True)
